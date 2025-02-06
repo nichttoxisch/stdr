@@ -11,8 +11,10 @@ test_acc: tests/acc.c
 	./acc
 	python3 tests/acc.py
 
+regex: tests/regex.c
+	$(CC) $(CFLAGS) tests/regex.c -o regex
+	./regex
+
 main: src/main.c
 	$(CC) $(CFLAGS) src/main.c -o main
-
-run: main
 	./main

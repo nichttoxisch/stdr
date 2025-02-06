@@ -1,0 +1,13 @@
+digraph regex {
+  rankdir="LR";
+s0 -> s1 [ label="m"]
+s1 -> s2 [ label="u"]
+s2 -> s3 [ label="l"]
+s3 -> s4 [ label="("]
+s4 -> s5 [ label="DIGIT"]
+s5 -> s5 [ label="DIGIT"]
+s5 -> s6 [ label=","]
+s6 -> s7 [ label="DIGIT"]
+s7 -> s7 [ label="DIGIT"]
+s7 -> s8 [ label=")"]
+}

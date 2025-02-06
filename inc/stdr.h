@@ -62,7 +62,7 @@ void str_free(str_t s);
 str_t str_cpy(str_t s, void *dst);
 str_t str_cpy_alloc(str_t s);
 
-void str_drop(str_t *str);
+str_t str_drop(str_t str, usize n);
 bool str_drop_while(str_t *str, bool (*f)(char));
 bool str_split_at(str_t s, str_t *lhs, str_t *rhs, usize i);
 bool str_split_while(str_t s, str_t *lhs, str_t *rhs, bool (*f)(char));
@@ -90,6 +90,9 @@ typedef struct {
 #define arr_item_size(a) (a == NULL ? 0 : arr_header(a)->item_size)
 #define arr_capacity(a) (a == NULL ? 0 : arr_header(a)->capacity)
 #define arr_size(a) (arr_capacity(a) * arr_item_size(a))
+
+#define arr_last(a) ((a)[arr_count(a) - 1])
+#define arr_pre_last(a) ((a)[arr_count(a) - 2])
 
 void arr_free(arr(void) a);
 arr(void) arr_alloc(usize item_size, usize capacity);
@@ -185,7 +188,10 @@ void cmd_run_reset(cmd_t *cmd);
 #ifdef STDR_IMPLEMENTATION
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <strings.h>
 #include <sys/wait.h>  // waitpid
 #include <unistd.h>    // fork
 
@@ -241,10 +247,11 @@ str_t str_cpy(str_t s, void *dst) {
   return cpy;
 }
 
-void str_drop(str_t *str) {
-  if (str->len <= 0) return;
-  str->ptr += 1;
-  str->len -= 1;
+str_t str_drop(str_t str, usize n) {
+  if (str.len <= 0) return str;
+  str.ptr += n;
+  str.len -= n;
+  return str;
 }
 
 bool str_drop_while(str_t *str, bool (*f)(char)) {
@@ -298,7 +305,7 @@ arr(str_t) str_split_lines(str_t s) {
 
   str_t line;
   while (str_split_while(s, &line, &s, not_is_new_line)) {
-    str_drop(&s);
+    s = str_drop(s, 1);
     arr_append(lines, line);
   }
   return lines;
@@ -443,9 +450,11 @@ void cmd_run(cmd_t *cmd) {
   if (pid == 0) {
     cstr_t path = cmd->cmd[0];
     cstr_t *argv = &cmd->cmd[0];
-    execvp(path, argv);
-    perror("[CMD] execv");
-    return;
+    if (execvp(path, argv) < 0) {
+      fprintf(stderr, "[CMD] ERROR: %s\n", strerror(errno));
+      exit(1);
+    }
+    exit(0);
   } else {
     int status;
     waitpid(pid, &status, 0);
