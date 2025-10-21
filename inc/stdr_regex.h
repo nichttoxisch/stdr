@@ -1,5 +1,5 @@
-#ifndef REGEX_H_
-#define REGEX_H_
+#ifndef STDR_REGEX_H_
+#define STDR_REGEX_H_
 
 #include "stdr.h"
 
@@ -47,25 +47,25 @@ void regex_push_transition(regex_t* regex, regex_state_t from, regex_state_t to,
 bool regex_match_ch(enum regex_match match, char ch);
 enum regex_match regex_match_parse(char ch);
 str_t regex_match_str_start_impl(const regex_t* regex, regex_state_t begin,
-                                 str_t str, usize count, char* sstr);
+                                 str_t str, isize count, char* sstr);
 str_t regex_match_str_start(regex_t* regex, regex_state_t s0, str_t str);
 str_t regex_match_str(regex_t* regex, regex_state_t s0, str_t str,
                       str_t* out_rest);
 
-#endif
+#endif  // STDR_REGEX_IMPLEMENTATION
 
 #ifdef STDR_REGEX_IMPLEMENTATION
 
 const str_t REGEX_MATCH_LITERALS[] = {
-    [MATCH_LA] = str("a"),         [MATCH_LB] = str("b"),
-    [MATCH_LC] = str("c"),         [MATCH_LM] = str("m"),
-    [MATCH_LU] = str("u"),         [MATCH_LL] = str("l"),
-    [MATCH_LZ] = str("z"),         [MATCH_UZ] = str("Z"),
-    [MATCH_COMMA] = str(","),      [MATCH_WILDCARD] = str("."),
-    [MATCH_ASTERIX] = str("*"),    [MATCH_PLUS] = str("+"),
-    [MATCH_PAREN_OPEN] = str("("), [MATCH_PAREN_CLOSE] = str(")"),
-    [MATCH_SKIP] = str("SKIP"),    [MATCH_BSLASH] = str("\\"),
-    [MATCH_DIGIT] = str("DIGIT")};
+    [MATCH_LA] = STR("a"),         [MATCH_LB] = STR("b"),
+    [MATCH_LC] = STR("c"),         [MATCH_LM] = STR("m"),
+    [MATCH_LU] = STR("u"),         [MATCH_LL] = STR("l"),
+    [MATCH_LZ] = STR("z"),         [MATCH_UZ] = STR("Z"),
+    [MATCH_COMMA] = STR(","),      [MATCH_WILDCARD] = STR("."),
+    [MATCH_ASTERIX] = STR("*"),    [MATCH_PLUS] = STR("+"),
+    [MATCH_PAREN_OPEN] = STR("("), [MATCH_PAREN_CLOSE] = STR(")"),
+    [MATCH_SKIP] = STR("SKIP"),    [MATCH_BSLASH] = STR("\\"),
+    [MATCH_DIGIT] = STR("DIGIT")};
 
 regex_state_t regex_push_state(regex_t* regex) {
   regex_state_t s0 = (regex_state_t)arr_count(regex->states);
@@ -113,13 +113,13 @@ str_t regex_match_str_start(regex_t* regex, regex_state_t s0, str_t str) {
 }
 
 str_t regex_match_str_start_impl(const regex_t* regex, regex_state_t begin,
-                                 str_t str, usize count, char* sstr) {
+                                 str_t str, isize count, char* sstr) {
   STDR_ASSERT(arr_count(regex->states) >= 2);
 
   if (begin == arr_last(regex->states))
     return (str_t){.len = count, .ptr = sstr};
 
-  for (usize i = 0; i < arr_count(regex->transitions); i++) {
+  for (isize i = 0; i < arr_count(regex->transitions); i++) {
     regex_transition_t trans = regex->transitions[i];
     if (trans.from != begin) continue;
     if (trans.match == MATCH_SKIP) {
@@ -149,10 +149,10 @@ void regex_generate_dot(regex_t* regex, const cstr_t filename) {
   assert(f != NULL);
   fprintf(f, "digraph regex {\n");
   fprintf(f, "  rankdir=\"LR\";\n");
-  for (usize i = 0; i < arr_count(regex->transitions); i++) {
+  for (isize i = 0; i < arr_count(regex->transitions); i++) {
     regex_transition_t trans = regex->transitions[i];
 
-    fprintf(f, "s%ld -> s%ld [ label=\"%s\"]\n", trans.from, trans.to,
+    fprintf(f, "s%lld -> s%lld [ label=\"%s\"]\n", trans.from, trans.to,
             REGEX_MATCH_LITERALS[trans.match].ptr);
   }
   fprintf(f, "}\n");

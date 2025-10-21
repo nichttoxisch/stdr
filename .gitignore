@@ -1,3 +1,5 @@
 acc
 main
 regex
+*.dSYM
+**.dot

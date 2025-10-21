@@ -1,14 +1,14 @@
-CC = clang 
-CFLAGS = -Wall -Wextra -Werror -Wpedantic -Wconversion -Wsign-conversion -Wswitch -Wstrict-overflow
+CC = /usr/local/opt/gcc/bin/gcc-15 
+CFLAGS = -Wall -Wextra -Werror -Wconversion -Wswitch -Wstrict-overflow
 CFLAGS += -Wundef -Wunused -Wmissing-field-initializers -Wimplicit-fallthrough -Wdeprecated -std=c23 -ggdb  
-CFLAGS += -fstack-protector-all -fno-omit-frame-pointer -fsanitize=address -fsanitize=undefined
-CFLAGS += -O2 -Iinc
+# CFLAGS += -fstack-protector-all -fno-omit-frame-pointer -fsanitize=address -fsanitize=undefined
+CFLAGS += -O0 -Iinc
 
 test: test_acc
 
 test_acc: tests/acc.c
 	$(CC) $(CFLAGS) tests/acc.c -o acc
-	./acc
+	./acc 
 	python3 tests/acc.py
 
 regex: tests/regex.c

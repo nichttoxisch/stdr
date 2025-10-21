@@ -18,7 +18,7 @@ int main(void) {
       str("notmul(112,2)+some mjunkmul(12,22)+some junkmul(61,2222)a");
 
   // Generate a dot graph and compile it
-  regex_generate_dot(&regex, "data/regex.dot");
+  regex_generate_dot(&regex, "regex.dot");
 
   while (true) {
     // Will look for thee first match in the string
@@ -28,7 +28,7 @@ int main(void) {
     // No match is found
     if (str_is_null(match)) break;
 
-    printf("%.*s\n", sfmt(match));
+    printf("%.*s\n", SFMT(match));
   }
 
   // Cleanup
