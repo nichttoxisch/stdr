@@ -36,9 +36,8 @@ typedef uint32_t u32;
 typedef uint64_t u64;
 
 typedef _Float16 f16;
-// typedef _Float32 f32;
-// typedef _Float64 f64;
-// typedef _Float128 f128;
+typedef float f32;
+typedef double f64;
 
 typedef size_t usize;
 
