@@ -59,7 +59,7 @@ typedef struct {
 #define str_is_null(s) (s.ptr == NULL)
 
 #define str(s) ((str_t){s, (usize)strlen(s)})
-#define STR(s) ((str_t){s, sizeof(s)})
+#define STR(s) ((str_t){s, (sizeof(s) - 1)})
 #define SFMT(s) (int)s.len, s.ptr
 
 str_t str_alloc(usize len);

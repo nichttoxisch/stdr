@@ -47,7 +47,7 @@ void regex_push_transition(regex_t* regex, regex_state_t from, regex_state_t to,
 bool regex_match_ch(enum regex_match match, char ch);
 enum regex_match regex_match_parse(char ch);
 str_t regex_match_str_start_impl(const regex_t* regex, regex_state_t begin,
-                                 str_t str, isize count, char* sstr);
+                                 str_t str, usize count, char* sstr);
 str_t regex_match_str_start(regex_t* regex, regex_state_t s0, str_t str);
 str_t regex_match_str(regex_t* regex, regex_state_t s0, str_t str,
                       str_t* out_rest);
@@ -113,13 +113,13 @@ str_t regex_match_str_start(regex_t* regex, regex_state_t s0, str_t str) {
 }
 
 str_t regex_match_str_start_impl(const regex_t* regex, regex_state_t begin,
-                                 str_t str, isize count, char* sstr) {
+                                 str_t str, usize count, char* sstr) {
   STDR_ASSERT(arr_count(regex->states) >= 2);
 
   if (begin == arr_last(regex->states))
     return (str_t){.len = count, .ptr = sstr};
 
-  for (isize i = 0; i < arr_count(regex->transitions); i++) {
+  for (usize i = 0; i < arr_count(regex->transitions); i++) {
     regex_transition_t trans = regex->transitions[i];
     if (trans.from != begin) continue;
     if (trans.match == MATCH_SKIP) {
@@ -149,7 +149,7 @@ void regex_generate_dot(regex_t* regex, const cstr_t filename) {
   assert(f != NULL);
   fprintf(f, "digraph regex {\n");
   fprintf(f, "  rankdir=\"LR\";\n");
-  for (isize i = 0; i < arr_count(regex->transitions); i++) {
+  for (usize i = 0; i < arr_count(regex->transitions); i++) {
     regex_transition_t trans = regex->transitions[i];
 
     fprintf(f, "s%lld -> s%lld [ label=\"%s\"]\n", trans.from, trans.to,
