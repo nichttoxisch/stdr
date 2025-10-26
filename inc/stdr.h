@@ -36,9 +36,9 @@ typedef uint32_t u32;
 typedef uint64_t u64;
 
 typedef _Float16 f16;
-typedef _Float32 f32;
-typedef _Float64 f64;
-typedef _Float128 f128;
+// typedef _Float32 f32;
+// typedef _Float64 f64;
+// typedef _Float128 f128;
 
 typedef size_t usize;
 
@@ -51,26 +51,26 @@ bool not_is_space(char ch);
 
 typedef struct {
   char* ptr;
-  isize len;
+  usize len;
 } str_t;
 
 #define STR_NULL ((str_t){NULL, 0})
 
 #define str_is_null(s) (s.ptr == NULL)
 
-#define str(s) ((str_t){s, (isize)strlen(s)})
+#define str(s) ((str_t){s, (usize)strlen(s)})
 #define STR(s) ((str_t){s, sizeof(s)})
 #define SFMT(s) (int)s.len, s.ptr
 
-str_t str_alloc(isize len);
+str_t str_alloc(usize len);
 void str_free(str_t s);
 
 str_t str_cpy(str_t s, void* dst);
 str_t str_cpy_alloc(str_t s);
 
-str_t str_drop(str_t str, isize n);
+str_t str_drop(str_t str, usize n);
 bool str_drop_while(str_t* str, bool (*f)(char));
-bool str_split_at(str_t s, str_t* lhs, str_t* rhs, isize i);
+bool str_split_at(str_t s, str_t* lhs, str_t* rhs, usize i);
 bool str_split_while(str_t s, str_t* lhs, str_t* rhs, bool (*f)(char));
 
 str_t str_trim_start(str_t s);
@@ -81,14 +81,14 @@ void str_to_lowercase(str_t s);
 void str_to_uppercase(str_t s);
 
 #ifndef STDR_HASH
-isize stdr_hash(str_t k);
+usize stdr_hash(str_t k);
 #define STDR_HASH stdr_hash
 #endif
 
 typedef struct {
-  isize item_size;
-  isize count;
-  isize capacity;
+  usize item_size;
+  usize count;
+  usize capacity;
 } arr_header_t;
 
 #define arr(T) T*
@@ -103,9 +103,9 @@ typedef struct {
 #define arr_pre_last(a) ((a)[arr_count(a) - 2])
 
 void arr_free(arr(void) a);
-arr(void) arr_alloc(isize item_size, isize capacity);
-arr(void) arr_realloc(arr(void) a, isize new_capacity);
-isize capacity_grow(isize capacity);
+arr(void) arr_alloc(usize item_size, usize capacity);
+arr(void) arr_realloc(arr(void) a, usize new_capacity);
+usize capacity_grow(usize capacity);
 
 #define arr_append(a, ...)                                             \
   do {                                                                 \
@@ -129,9 +129,9 @@ void dstr_append(dstr_t* ds, char ch);
 void dstr_append_str(dstr_t* ds, str_t s);
 
 typedef struct {
-  isize count;
-  isize capacity;
-  isize item_size;
+  usize count;
+  usize capacity;
+  usize item_size;
   str_t* entries;
 } map_header_t;
 
@@ -144,26 +144,26 @@ typedef struct {
 #define map_size(m) (map_capacity(m) * map_item_size(m))
 #define map_entries(m) (map_header(m)->entries)
 
-map(void) map_alloc(isize item_size, isize capacity);
-map(void) map_realloc(map(void) m, isize new_capacity);
+map(void) map_alloc(usize item_size, usize capacity);
+map(void) map_realloc(map(void) m, usize new_capacity);
 void map_free(map(void) m);
 
-isize map_get_idx(map(void) m, str_t k);
+usize map_get_idx(map(void) m, str_t k);
 void* map_get_ptr(map(void) m, str_t k);
 
-#define map_has(m, k) (m == NULL ? false : (map_get_idx(m, k) != (isize) - 1))
+#define map_has(m, k) (m == NULL ? false : (map_get_idx(m, k) != (usize) - 1))
 #define map_get(m, k) ((typeof(m))map_get_ptr(m, k))
 
 void map_insert_cpy(map(void) * m, str_t k, void* data);
 #define map_insert(m, k, ...)                             \
   do {                                                    \
     if ((m) == NULL) (m) = map_alloc(sizeof(*(m)), 32);   \
-    isize map_insert_i = map_insert_key((void**)&(m), k); \
+    usize map_insert_i = map_insert_key((void**)&(m), k); \
     (m)[map_insert_i] = (__VA_ARGS__);                    \
   } while (0)
 
 #define map_items_collect(m, dst)                                            \
-  for (isize map_items_collect_i = 0; map_items_collect_i < map_capacity(m); \
+  for (usize map_items_collect_i = 0; map_items_collect_i < map_capacity(m); \
        map_items_collect_i++) {                                              \
     if (map_entries(m)[map_items_collect_i].ptr == NULL) continue;           \
     typeof(*acc) pair = {map_entries(m)[map_items_collect_i],                \
@@ -209,15 +209,15 @@ void cmd_run_reset(cmd_t* cmd);
 #define STDR_ASSERT assert
 #endif
 
-isize stdr_hash(str_t k) {
-  isize hash = 0;
-  for (isize i = 0; i < k.len; ++i) {
+usize stdr_hash(str_t k) {
+  usize hash = 0;
+  for (usize i = 0; i < (usize)k.len; ++i) {
     hash = ((u8*)(k.ptr))[i] + (hash << 6) + (hash << 16) - hash;
   }
   return hash;
 }
 
-isize capacity_grow(isize capacity) {
+usize capacity_grow(usize capacity) {
   return capacity < 8 ? 8 : capacity + capacity / 2;
 }
 
@@ -227,20 +227,20 @@ bool not_is_space(char ch) { return !is_space(ch); }
 bool is_new_line(char ch) { return ch == '\n'; }
 bool not_is_new_line(char ch) { return !is_new_line(ch); }
 
-str_t str_alloc(isize len) {
+str_t str_alloc(usize len) {
   str_t s = {.ptr = malloc((size_t)len), .len = len + 1};
   memset(s.ptr, 0, (size_t)len + 1);
   return s;
 }
 
 void str_to_lowercase(str_t s) {
-  for (isize i = 0; i < s.len; i++) {
+  for (usize i = 0; i < s.len; i++) {
     ((char*)s.ptr)[i] = (char)tolower(((char*)s.ptr)[i]);
   }
 }
 
 void str_to_uppercase(str_t s) {
-  for (isize i = 0; i < s.len; i++) {
+  for (usize i = 0; i < s.len; i++) {
     ((char*)s.ptr)[i] = (char)toupper(((char*)s.ptr)[i]);
   }
 }
@@ -256,7 +256,7 @@ str_t str_cpy(str_t s, void* dst) {
   return cpy;
 }
 
-str_t str_drop(str_t str, isize n) {
+str_t str_drop(str_t str, usize n) {
   if (str.len <= 0) return str;
   str.ptr += n;
   str.len -= n;
@@ -267,7 +267,7 @@ bool str_drop_while(str_t* str, bool (*f)(char)) {
   return str_split_while(*str, NULL, str, f);
 }
 
-bool str_split_at(str_t s, str_t* lhs, str_t* rhs, isize i) {
+bool str_split_at(str_t s, str_t* lhs, str_t* rhs, usize i) {
   if (i > s.len) return false;
 
   if (lhs != NULL) {
@@ -288,7 +288,7 @@ bool str_split_while(str_t s, str_t* lhs, str_t* rhs, bool (*f)(char)) {
     return false;
   }
 
-  isize i = 0;
+  usize i = 0;
   while (i < s.len && f(s.ptr[i])) i++;
 
   return str_split_at(s, lhs, rhs, i);
@@ -334,14 +334,14 @@ arr(str_t) str_split_lines(str_t s) {
 
 void dstr_append(dstr_t* ds, char ch) { arr_append(*ds, ch); }
 void dstr_append_str(dstr_t* ds, str_t s) {
-  for (isize i = 0; i < s.len; i++) {
+  for (usize i = 0; i < s.len; i++) {
     dstr_append(ds, s.ptr[i]);
   }
 }
 
 void arr_free(arr(void) a) { STDR_FREE(arr_header(a)); }
 
-arr(void) arr_alloc(isize item_size, isize capacity) {
+arr(void) arr_alloc(usize item_size, usize capacity) {
   arr_header_t* a =
       STDR_MALLOC(sizeof(arr_header_t) + (size_t)item_size * (size_t)capacity);
   a->item_size = item_size;
@@ -351,7 +351,7 @@ arr(void) arr_alloc(isize item_size, isize capacity) {
   return a + 1;
 }
 
-arr(void) arr_realloc(arr(void) a, isize new_capacity) {
+arr(void) arr_realloc(arr(void) a, usize new_capacity) {
   arr(void) b = arr_alloc(arr_item_size(a), new_capacity);
   arr_header(b)->count = arr_header(a)->count;
   memcpy(b, a, (size_t)(arr_item_size(a) * arr_count(a)));
@@ -359,7 +359,7 @@ arr(void) arr_realloc(arr(void) a, isize new_capacity) {
   return b;
 }
 
-map(void) map_alloc(isize item_size, isize capacity) {
+map(void) map_alloc(usize item_size, usize capacity) {
   map_header_t* map =
       malloc(sizeof(map_header_t) + (size_t)capacity * (size_t)item_size);
   map->count = 0;
@@ -370,35 +370,35 @@ map(void) map_alloc(isize item_size, isize capacity) {
   return map + 1;
 }
 
-isize map_insert_key(map(void) * m, str_t k) {
-  isize i = STDR_HASH(k);
-  for (isize ii = 0; ii < 32; ii++) {
-    isize iii = (i + ii) % map_capacity(*m);
+usize map_insert_key(map(void) * m, str_t k) {
+  usize i = STDR_HASH(k);
+  for (usize ii = 0; ii < 32; ii++) {
+    usize iii = (usize)(i + ii) % (usize)map_capacity(*m);
     if (map_entries((*m))[iii].ptr != NULL) continue;
     map_entries(*m)[iii] = k;
     map_count(*m) += 1;
-    return iii;
+    return (usize)iii;
   }
 
   *m = map_realloc(*m, capacity_grow(map_capacity(*m)));
-  isize iii = map_insert_key(m, k);
+  usize iii = map_insert_key(m, k);
   return iii;
 }
 
 void map_insert_cpy(map(void) * m, str_t k, void* data) {
-  isize n = map_insert_key(m, k);
+  usize n = map_insert_key(m, k);
 
   u8* ma = (u8*)(*m);
-  u8* dest = &(ma[n * map_item_size(*m)]);
+  u8* dest = &(ma[n * (usize)map_item_size(*m)]);
 
   memcpy(dest, data, (size_t)map_item_size(*m));
 }
 
-map(void) map_realloc(map(void) m, isize new_capacity) {
+map(void) map_realloc(map(void) m, usize new_capacity) {
   assert(new_capacity >= map_count(m));
 
   map(void) map_new = map_alloc(map_item_size(m), new_capacity);
-  for (isize i = 0; i < map_capacity(m); i++) {
+  for (usize i = 0; i < map_capacity(m); i++) {
     if (map_entries(m)[i].ptr == NULL) continue;
     map_insert_cpy(&map_new, map_entries(m)[i],
                    map_get_ptr(m, map_entries(m)[i]));
@@ -413,21 +413,21 @@ void map_free(map(void) m) {
   free(map_header(m));
 }
 
-isize map_get_idx(map(void) m, str_t k) {
-  isize i = STDR_HASH(k);
-  for (isize ii = 0; ii < 32; ii++) {
-    isize iii = (i + ii) % map_capacity(m);
+usize map_get_idx(map(void) m, str_t k) {
+  usize i = STDR_HASH(k);
+  for (usize ii = 0; ii < 32; ii++) {
+    usize iii = (usize)((i + ii) % map_capacity(m));
     if (map_entries(m)[iii].ptr == NULL) continue;
     if (map_entries(m)[iii].len != k.len) continue;
     if (memcmp(map_entries(m)[iii].ptr, k.ptr, (size_t)k.len) == 0) return iii;
   }
-  return (isize)-1;
+  return (usize)-1;
 }
 
 void* map_get_ptr(map(void) m, str_t k) {
-  isize idx = map_get_idx(m, k);
-  if (idx == (isize)-1) return NULL;
-  return &((u8*)m)[idx * map_item_size(m)];
+  usize idx = map_get_idx(m, k);
+  if (idx == (usize)-1) return NULL;
+  return &((u8*)m)[(usize)idx * map_item_size(m)];
 }
 
 arr(char) read_file(cstr_t filename) {
@@ -461,7 +461,7 @@ void cmd_run(cmd_t* cmd) {
   assert(arr_count(cmd->cmd) >= 1 && "path must be provided.");
 
   printf("[CMD] ");
-  for (isize i = 0; i < arr_count(cmd->cmd); i++) {
+  for (usize i = 0; i < arr_count(cmd->cmd); i++) {
     printf("%s ", cmd->cmd[i]);
   }
   printf("\n");

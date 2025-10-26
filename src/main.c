@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define STDR_DLAG_IMPLEMENTATION
+#define STDR_FLAG_IMPLEMENTATION
 #include "stdr_flag.h"
 
 #define STDR_IMPLEMENTATION

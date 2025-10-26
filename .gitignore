@@ -3,3 +3,4 @@ main
 regex
 *.dSYM
 **.dot
+.vscode

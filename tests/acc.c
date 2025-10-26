@@ -40,7 +40,7 @@ int main(i32 argc, const cstr_t argv[]) {
   arr(str_t) words = str_split_words(str(content));
 
   map(i64) dic = NULL;
-  for (isize i = 0; i < arr_count(words); i++) {
+  for (usize i = 0; i < arr_count(words); i++) {
     str_to_lowercase(words[i]);
 
     if (map_has(dic, words[i])) {
